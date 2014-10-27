@@ -20,9 +20,8 @@ func NewTCDatabase(driverName, sourceName string) (*TCDatabase, error) {
 func (this *TCDatabase) Connectioned() bool {
 	if this.pDB == nil {
 		var err error
-		this.pDB, err = sql.Open(this.DriveName, this.SourceName)
-		if err != nil {
-			fmt.Printf("[dboperate Connection] >%s\n", err.Error())
+		if this.pDB, err = sql.Open(this.DriveName, this.SourceName); err != nil {
+			fmt.Printf("[TCDatabase Connection] >%s\n", err.Error())
 			return false
 		}
 	}
