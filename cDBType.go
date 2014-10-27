@@ -4,18 +4,13 @@ import (
 	"database/sql"
 )
 
-//type TAllRows struct {
-//	prows  *sql.Rows
-//	Fields []*TField
-//}
+type TField struct {
+	Index   int
+	Name    string
+	Variant interface{}
+}
 
-//type TField struct {
-//	Index   int
-//	Name    string
-//	Variant interface{}
-//}
-
-type TFields map[string]interface{}
+type TFields []*TField
 
 type TTransaction struct {
 	ptx      *sql.Tx
@@ -23,14 +18,12 @@ type TTransaction struct {
 	sql_args []interface{}
 }
 
-//type TRow struct {
-//	fields TFields
-//}
-
 type TQuery struct {
 	pConn    *TCDatabase
 	fields   TFields
 	rows     []*TFields
+	rowCount int // 数据行数
+	rowIndex int // 当前所在行
 	sql_text string
 	sql_args []interface{}
 }
