@@ -31,16 +31,20 @@ func (this *TCDatabase) Connectioned() bool {
 func (this *TCDatabase) NewQuery() *TQuery {
 	p := new(TQuery)
 	p.pConn = this
+	p.bInTrans = false
 	return p
 }
 
-func (this *TCDatabase) NewTrans() *TTrans {
+func (this *TCDatabase) NewTrans() *TQuery {
 	var err error
 	var pTx *sql.Tx
-	p := new(TTrans)
-	if pTx, err = this.pDB.Begin(); err != nil || pTx == nil {
+	p := new(TQuery)
+	p.pConn = this
+	if pTx, err = p.pConn.pDB.Begin(); err != nil || pTx == nil {
 		return nil
 	}
+	p.pTx = pTx
+	p.bInTrans = true
 	return p
 }
 

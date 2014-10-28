@@ -20,6 +20,8 @@ type TTrans struct {
 
 type TQuery struct {
 	pConn    *TCDatabase
+	pTx      *sql.Tx
+	bInTrans bool
 	fields   TFields
 	rows     []*TFields
 	rowCount int // 数据行数

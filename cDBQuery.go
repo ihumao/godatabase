@@ -2,6 +2,7 @@ package cdatabase
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -20,9 +21,16 @@ func (this *TQuery) Execute() int64 {
 	var pStmt *sql.Stmt
 	var sqlResult sql.Result
 	var nResult int64
-	if pStmt, err = this.pConn.pDB.Prepare(this.sql_text); err != nil {
-		fmt.Printf("[mysql Execute 1] >%s\n", err.Error())
-		return -1
+	if this.bInTrans {
+		if pStmt, err = this.pTx.Prepare(this.sql_text); err != nil {
+			fmt.Printf("[mysql Execute (in trans) 1] >%s\n", err.Error())
+			return -1
+		}
+	} else {
+		if pStmt, err = this.pConn.pDB.Prepare(this.sql_text); err != nil {
+			fmt.Printf("[mysql Execute 1] >%s\n", err.Error())
+			return -1
+		}
 	}
 	defer pStmt.Close()
 	if sqlResult, err = pStmt.Exec(this.sql_args...); err != nil {
@@ -60,9 +68,16 @@ func (this *TQuery) Open() error {
 	this.fields = nil
 	this.rowCount = 0
 	this.rowIndex = -1
-	if pStmt, err = this.pConn.pDB.Prepare(this.sql_text); err != nil {
-		fmt.Printf("[mysql Open 1] >%s\n", err.Error())
-		return err
+	if this.bInTrans {
+		if pStmt, err = this.pTx.Prepare(this.sql_text); err != nil {
+			fmt.Printf("[mysql Open (in trans) 1] >%s\n", err.Error())
+			return err
+		}
+	} else {
+		if pStmt, err = this.pConn.pDB.Prepare(this.sql_text); err != nil {
+			fmt.Printf("[mysql Open 1] >%s\n", err.Error())
+			return err
+		}
 	}
 	defer pStmt.Close()
 	if pRows, err = pStmt.Query(this.sql_args...); err != nil {
@@ -139,4 +154,18 @@ func (this *TQuery) Last() {
 		return
 	}
 	this.rowIndex = this.rowCount - 1
+}
+
+func (this *TQuery) Commit() error {
+	if this.bInTrans && this.pTx != nil {
+		return this.pTx.Commit()
+	}
+	return errors.New(`[Commit]> not in trans`)
+}
+
+func (this *TQuery) Rollback() error {
+	if this.bInTrans && this.pTx != nil {
+		return this.pTx.Rollback()
+	}
+	return errors.New(`[Rollback]> not in trans`)
 }
