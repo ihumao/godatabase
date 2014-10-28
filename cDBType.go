@@ -12,8 +12,8 @@ type TField struct {
 
 type TFields []*TField
 
-type TTransaction struct {
-	ptx      *sql.Tx
+type TTrans struct {
+	pTx      *sql.Tx
 	sql_text string
 	sql_args []interface{}
 }

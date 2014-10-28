@@ -34,11 +34,14 @@ func (this *TCDatabase) NewQuery() *TQuery {
 	return p
 }
 
-func (this *TCDatabase) NewTransaction() (*TTransaction, error) {
+func (this *TCDatabase) NewTrans() *TTrans {
 	var err error
-	p := new(TTransaction)
-	p.ptx, err = this.pDB.Begin()
-	return p, err
+	var pTx *sql.Tx
+	p := new(TTrans)
+	if pTx, err = this.pDB.Begin(); err != nil || pTx == nil {
+		return nil
+	}
+	return p
 }
 
 //func (this *TTransaction) Commit() error {
