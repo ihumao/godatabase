@@ -1,4 +1,4 @@
-// dboperate
+// cdatabase
 package cdatabase
 
 import (
